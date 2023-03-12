@@ -1,0 +1,47 @@
+---
+- name: Instala e configura o WSL, AWS CLI, Git, VS Code, Oh My Zsh e Windows Terminal
+  hosts: all
+  gather_facts: false
+  vars:
+    username: "{{ lookup('env', 'USERNAME') }}"
+    wsl_distro_name: "Ubuntu"
+    wsl_user_home: "/mnt/c/Users/{{ username }}"
+  tasks:
+    - name: Instala o WSL
+      ansible.windows.win_command: wsl --install
+
+    - name: Configura o Ubuntu WSL
+      ansible.windows.win_command: wsl sudo apt update && wsl sudo apt install -y python3-pip curl zsh
+      args:
+        executable: C:\Windows\System32\wsl.exe
+
+    - name: Instala o AWS CLI
+      ansible.windows.win_command: wsl sudo pip3 install awscli
+      args:
+        executable: C:\Windows\System32\wsl.exe
+
+    - name: Instala o Git
+      ansible.windows.win_command: wsl sudo apt install -y git
+      args:
+        executable: C:\Windows\System32\wsl.exe
+
+    - name: Instala o VS Code
+      ansible.windows.win_chocolatey:
+        name: visualstudiocode
+        state: present
+
+    - name: Instala o Oh My Zsh
+      ansible.windows.win_command: wsl sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+      args:
+        executable: C:\Windows\System32\wsl.exe
+
+    - name: Instala o Windows Terminal
+      ansible.windows.win_chocolatey:
+        name: microsoft-windows-terminal
+        state: present
+
+    - name: Cria link simbólico para a pasta do usuário Windows no Ubuntu WSL
+      ansible.windows.win_shell: |
+        wsl sudo ln -s {{ wsl_user_home }} /home/{{ username }}
+      args:
+        executable: C:\Windows\System32\wsl.exe
