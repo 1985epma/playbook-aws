@@ -1,0 +1,23 @@
+---
+- name: Carrega as credenciais do IAM usando AWS SSO
+  hosts: localhost
+  gather_facts: no
+  vars:
+    aws_sso_start_url: "https://<your-start-url>.awsapps.com/start"
+    aws_sso_region: "<your-region>"
+    aws_sso_account_id: "<your-account-id>"
+    aws_sso_role_name: "<your-role-name>"
+    aws_sso_role_duration: "3600"
+  tasks:
+    - name: Faz login na AWS SSO
+      iam_login:
+        start_url: "{{ aws_sso_start_url }}"
+        region: "{{ aws_sso_region }}"
+        account_id: "{{ aws_sso_account_id }}"
+        role_name: "{{ aws_sso_role_name }}"
+        role_duration_seconds: "{{ aws_sso_role_duration }}"
+      register: sso_login
+
+    - name: Exibe as credenciais do IAM
+      debug:
+        var: sso_login
