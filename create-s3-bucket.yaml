@@ -1,0 +1,12 @@
+---
+- name: Criar bucket no S3
+  hosts: localhost
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Criar bucket
+      s3_bucket:
+        name: meu-bucket
+        state: present
+

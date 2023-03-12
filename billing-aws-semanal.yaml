@@ -1,0 +1,15 @@
+- name: Verificar o billing semanal da AWS
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Verificar billing
+      aws_billing:
+        start_time: "{{ lookup('pipe', 'date -u -d \"-1 week\" \"+%Y-%m-%dT00:00:00Z\"') }}"
+        end_time: "{{ lookup('pipe', 'date -u \"+%Y-%m-%dT00:00:00Z\"') }}"
+        granularity: WEEKLY
+      register: billing
+
+    - name: Exibir resultados
+      debug:
+        var: billing
+

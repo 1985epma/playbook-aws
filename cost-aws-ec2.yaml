@@ -1,0 +1,22 @@
+---
+- name: Verificar custos diários do EC2
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Obter informações das instâncias EC2
+      ec2_instance_info:
+        region: us-west-2
+        filters:
+          "tag:Environment": "production"
+      register: ec2_info
+
+    - name: Calcular custos diários
+      set_fact:
+        daily_cost: "{{ (ec2_info.instance_info | sum(attribute='hourly_price') * 24) | round(2) }}"
+
+    - name: Exibir custos diários
+      debug:
+        var: daily_cost
+
