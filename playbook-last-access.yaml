@@ -1,0 +1,18 @@
+---
+- name: Lista os últimos acessos na AWS
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Obtém informações de login
+      shell: aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=ConsoleLogin --output json
+      register: login_events
+
+    - name: Filtra as informações dos últimos acessos
+      set_fact:
+        last_accesses: "{{ login_events.stdout | from_json | sort(attribute='EventTime')[::-1][:10] }}"
+
+    - name: Exibe as informações dos últimos acessos
+      debug:
+        msg: "{{ item.EventName }} em {{ item.EventTime }} por {{ item.Username }}"
+      loop: "{{ last_accesses }}"
