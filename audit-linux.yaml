@@ -1,0 +1,34 @@
+---
+- name: Realiza auditoria na máquina Linux
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Verifica versão do sistema operacional
+      ansible.builtin.command: cat /etc/os-release
+      register: os_release
+
+    - name: Verifica quais usuários possuem acesso SSH
+      ansible.builtin.command: cat /etc/passwd | grep -e '/bin/bash' -e '/bin/sh' -e '/bin/zsh'
+      register: ssh_users
+
+    - name: Verifica quais processos estão em execução
+      ansible.builtin.command: ps auxf
+      register: processes
+
+    - name: Verifica espaço em disco
+      ansible.builtin.command: df -h
+      register: disk_space
+
+    - name: Verifica status do firewall
+      ansible.builtin.command: systemctl status firewalld
+      register: firewall_status
+
+    - name: Exibe resultados da auditoria
+      debug:
+        msg: |
+          Sistema operacional: {{ os_release.stdout }}
+          Usuários SSH: {{ ssh_users.stdout }}
+          Processos em execução: {{ processes.stdout }}
+          Espaço em disco: {{ disk_space.stdout }}
+          Status do firewall: {{ firewall_status.stdout }}
